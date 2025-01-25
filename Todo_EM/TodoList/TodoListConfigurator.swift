@@ -7,26 +7,3 @@
 
 import Foundation
 
-protocol TodoListConfiguratorProtocol {
-    
-}
-
-class TodoListConfigurator {
-    static func configure(view: TodoListView) {
-        let presenter = TodoListPresenter()
-        let interactor = TodoListInteractor()
-        let router = TodoListRouter()
-
-        // Связываем презентер с интерактором
-        interactor.presenter = presenter
-
-        // Связываем презентер с представлением
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.router = router
-
-        // Инициализируем представление с презентером
-        view.presenter = presenter
-    }
-}
-
