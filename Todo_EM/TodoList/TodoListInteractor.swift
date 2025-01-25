@@ -11,14 +11,14 @@ import CoreData
 protocol TodoListInteractorProtocol {
     func fetchTask()
     func viewTaskDetails(selectedTaskID: UUID)
-    func addTask()
+    func addTask(label: String, caption: String)
     func searchTask(by keyword: String)
 }
 
 class TodoListInteractor: TodoListInteractorProtocol {
     
     private let context = PersistenceController.shared.context
-    var presenter: TodoListPresenterProtocol?
+    weak var presenter: TodoListPresenterProtocol?
     
     func fetchTask() {
         DispatchQueue.global(qos: .background).async {
@@ -29,7 +29,7 @@ class TodoListInteractor: TodoListInteractorProtocol {
             do {
                 let tasks = try self.context.fetch(fetchRequest)
                 DispatchQueue.main.async {
-                    print(tasks) // передаём данные в presenter
+                    self.presenter?.didFetchTasks(tasks)
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -72,15 +72,16 @@ class TodoListInteractor: TodoListInteractorProtocol {
             newTask.caption = caption
             newTask.createDate = Date()
             newTask.isDone = false
-        }
-        do {
-            try context.save()
-            DispatchQueue.main.async {
-                self.presenter?.didAddTask()
-            }
-        } catch {
-            DispatchQueue.main.async {
-                self.presenter?.didFailToAddTask(error: error)
+            
+            do {
+                try self.context.save()
+                DispatchQueue.main.async {
+                    self.presenter?.didAddTask(newTask)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.presenter?.didFailToAddTask(error: error)
+                }
             }
         }
     }
