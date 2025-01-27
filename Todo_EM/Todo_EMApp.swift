@@ -14,6 +14,7 @@ struct Todo_EMApp: App {
     var body: some Scene {
         WindowGroup {
             TodoListConfigurator().configure()
+                .preferredColorScheme(.dark)
         }
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 
 class TodoListPresenter: TodoListPresenterProtocol {
+
     weak var viewState: TodoListViewStateProtocol?
     var interactor: TodoListInteractorProtocol
     
@@ -16,8 +17,8 @@ class TodoListPresenter: TodoListPresenterProtocol {
         self.interactor = interactor
     }
     
-    func fetchTasks() {
-        interactor.fetchTasks { [weak self] result in
+    func loadTasks() {
+        interactor.fetchTask { [weak self] result in
             switch result {
             case .success(let tasks):
                 DispatchQueue.main.async {
@@ -29,5 +30,37 @@ class TodoListPresenter: TodoListPresenterProtocol {
                 }
             }
         }
+    }
+    
+    func updateTask(task: TaskModel) {
+        interactor.updateTask(task: task) { result in
+            switch result {
+            case .success:
+                self.loadTasks()
+            case .failure(let error):
+                print("Error edited (Interactor side) \(error)")
+            }
+        }
+    }
+    
+    func addTask(task: TaskModel) {
+        interactor.saveTask(task: task)
+        self.loadTasks()
+    }
+    
+    func deleteTask(by id: UUID) {
+        interactor.deleteTask(by: id) { result in
+            switch result {
+            case .success:
+                self.loadTasks()
+            case .failure(let error):
+                print("Error (Interactor side) \(error)")
+            }
+            
+        }
+    }
+    
+    func saveTasks() {
+        print()
     }
 }

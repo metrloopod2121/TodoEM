@@ -8,15 +8,24 @@
 import Foundation
 
 struct TaskModel: Decodable, Identifiable {
-    let id: UUID = UUID()
-    let label: String
-    let caption: String = "Заметки"
-    let isDone: Bool
-    let createDate: Date = Date()
+    var id: UUID = UUID()
+    var label: String
+    var caption: String
+    var isDone: Bool
+    var createDate: Date = Date()
 
     enum CodingKeys: String, CodingKey {
         case label = "todo"
         case isDone = "completed"
+        case caption = "id"
+    }
+    
+    init(id: UUID = UUID(), label: String, caption: String = "Caption for task...", isDone: Bool, createDate: Date = Date()) {
+        self.id = id
+        self.label = label
+        self.caption = caption
+        self.isDone = isDone
+        self.createDate = createDate
     }
 }
 

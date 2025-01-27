@@ -8,6 +8,8 @@
 import Foundation
 
 final class TodoListViewState: ObservableObject, TodoListViewStateProtocol {
+    
+    @Published var isLoading = false
     @Published var tasks: [TaskModel] = []
     @Published var errorMessage: String?
     
@@ -18,14 +20,29 @@ final class TodoListViewState: ObservableObject, TodoListViewStateProtocol {
     }
     
     func fetchTasks() {
-        presenter?.fetchTasks()
+        isLoading = true
+        presenter?.loadTasks()
+    }
+    
+    func addTask(task: TaskModel) {
+        presenter?.addTask(task: task)
     }
     
     func updateTasks(_ tasks: [TaskModel]) {
         self.tasks = tasks
+        isLoading = false
     }
     
     func updateError(_ error: String) {
         self.errorMessage = error
+        isLoading = false
+    }
+    
+    func deleteTask(by id: UUID) {
+        presenter?.deleteTask(by: id)
+    }
+    
+    func updateTask(task: TaskModel) {
+        presenter?.updateTask(task: task)
     }
 }
