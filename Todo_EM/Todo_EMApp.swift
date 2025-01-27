@@ -13,8 +13,7 @@ struct Todo_EMApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            TodoListConfigurator().configure()
         }
     }
 }

@@ -8,3 +8,20 @@
 import Foundation
 import SwiftUI
 
+struct TodoListView: View {
+    @ObservedObject var viewState: TodoListViewState
+    
+    var body: some View {
+        NavigationView {
+            List(viewState.tasks) { task in
+                Text(task.label)
+            }
+            .navigationTitle("Todo List")
+            .onAppear {
+                viewState.fetchTasks()
+            }
+        }
+    }
+}
+
+ 
