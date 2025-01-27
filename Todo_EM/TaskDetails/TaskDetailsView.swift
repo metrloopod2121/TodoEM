@@ -66,35 +66,6 @@ struct TaskDetailsView: View {
             }
     }
 
-//    var body: some View {
-//        VStack(alignment: .leading) {
-//            TextField("Название задачи", text: $label)
-//                .textFieldStyle(PlainTextFieldStyle())
-//                .font(.system(size: 30))
-//                .padding()
-//            
-//            HStack {
-//                Text(Date().formattedDate())
-//                    .foregroundStyle(.gray)
-//                    .font(.system(size: 16))
-//                Spacer()
-//            }
-//            .padding(.leading)
-//            
-//            TextEditor(text: $caption)
-//                .padding(.horizontal, 10)
-//
-//            Spacer()
-//        }
-//        .onDisappear {
-//            if let task = task {
-//                viewState.updateTask(task: task)
-//            } else {
-//                let newTask = TaskModel(label: label, isDone: false)
-//                viewState.addTask(task: newTask)
-//            }
-//        }
-//    }
 }
 
 #Preview {

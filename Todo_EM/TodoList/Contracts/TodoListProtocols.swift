@@ -26,6 +26,7 @@ protocol TodoListPresenterProtocol: AnyObject {
     func addTask(task: TaskModel)
     func saveTasks()
     func deleteTask(by id: UUID)
+    
 }
 
 protocol TodoListInteractorProtocol: AnyObject {

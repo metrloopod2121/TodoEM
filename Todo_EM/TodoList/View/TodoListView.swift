@@ -10,11 +10,33 @@ import SwiftUI
 
 struct TodoListView: View {
     @ObservedObject var viewState: TodoListViewState
-    
-    //    @State private var isLoading = false
-    //    @State private var errorMessage: String?
     @State private var selectedTask: TaskModel?
+    @State private var searchText = ""
     
+    var filteredTasks: [TaskModel] {
+        if searchText.isEmpty {
+            return viewState.tasks
+        } else {
+            return viewState.tasks.filter { task in
+                task.label.lowercased().contains(searchText.lowercased()) || task.caption.lowercased().contains(searchText.lowercased())
+            }
+        }
+    }
+
+    func highlightedText(_ text: String, searchText: String) -> Text {
+        let lowercasedSearch = searchText.lowercased()
+        guard !lowercasedSearch.isEmpty else { return Text(text) }
+        
+        let components = text.lowercased().components(separatedBy: lowercasedSearch)
+        var result = Text(components.first ?? "")
+        
+        for i in 1..<components.count {
+            result = result + Text(searchText).foregroundColor(.yellow) + Text(components[i])
+        }
+        
+        return result
+    }
+
     func taskView(for task: TaskModel) -> some View {
         HStack(alignment: .top) {
             Image(task.isDone ? "check_mark_fill" : "check_mark")
@@ -31,17 +53,19 @@ struct TodoListView: View {
                 }
             
             VStack(alignment: .leading) {
-                Text(task.label)
+                highlightedText(task.label, searchText: searchText)
                     .font(.headline)
                     .padding(.bottom, 2)
                     .foregroundStyle(task.isDone ? .gray : .white)
                     .strikethrough(task.isDone)
-                Text(task.caption)
+                
+                highlightedText(task.caption, searchText: searchText)
                     .font(.subheadline)
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                     .foregroundStyle(task.isDone ? .gray : .white)
                     .padding(.bottom, 5)
+                
                 Text(task.createDate.formattedDate())
                     .font(.caption)
                     .foregroundStyle(.gray)
@@ -56,22 +80,20 @@ struct TodoListView: View {
                 Text("\(viewState.tasks.count) задач")
                 Spacer()
             }
-            
             NavigationLink(destination: TaskDetailsView(task: nil, viewState: viewState)) {
                 Image(systemName: "square.and.pencil")
                     .resizable()
                     .frame(width: 25, height: 25)
                     .foregroundColor(.yellow)
                     .padding(.trailing, 20)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .buttonStyle(PlainButtonStyle())
             }
-            
-            
         }
         .frame(maxWidth: .infinity, maxHeight: 60)
         .background(Color(red: 39/255, green: 39/255, blue: 41/255))
     }
-    
-    
     
     var body: some View {
         NavigationStack {
@@ -82,30 +104,22 @@ struct TodoListView: View {
                     Text(errorMessage)
                         .foregroundColor(.red)
                 } else {
-                    List(viewState.tasks) { task in
-                        
+                    List(filteredTasks) { task in
                         NavigationLink(destination: TaskDetailsView(task: task, viewState: viewState)) {
-                            
                             taskView(for: task)
-                                .listRowInsets(EdgeInsets())
                                 .padding(.vertical, 10)
-                                .listRowBackground(Color.clear)
                                 .onTapGesture {
                                     selectedTask = task
                                 }
-                            // deprecated /////////////////////////
-                                .swipeActions(edge: .trailing) {
-                                    Button("RM") {
-                                        viewState.deleteTask(by: task.id)
-                                    }
-                                    .tint(.red)
-                                }
-                            /////////////////////////////////////////
                         }
+                        .listRowInsets(EdgeInsets())
+                        .padding(.vertical, 10)
+                        .listRowBackground(Color.clear)
+                        .buttonStyle(PlainButtonStyle())
                     }
-
-                    addBar
+                    .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
                 }
+                addBar
             }
             .navigationTitle("Задачи")
             .onAppear {
@@ -114,4 +128,3 @@ struct TodoListView: View {
         }
     }
 }
-
