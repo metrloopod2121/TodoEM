@@ -50,7 +50,6 @@ struct TaskDetailsView: View {
                 viewState.updateTask(task: task)
             } else {
                 let newTask = TaskModel(label: label, caption: caption, isDone: false)
-                print("ADD NEW TASK AFTER CLOSE DETAILS")
                 viewState.addTask(task: newTask)
             }
         }

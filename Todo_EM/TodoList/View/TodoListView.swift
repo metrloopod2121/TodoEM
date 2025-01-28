@@ -12,6 +12,8 @@ struct TodoListView: View {
     @ObservedObject var viewState: TodoListViewState
     @State private var selectedTask: TaskModel?
     @State private var searchText = ""
+    @State private var isShareSheetPresented = false
+    @State private var shareItems: [Any] = []
     
     var filteredTasks: [TaskModel] {
         if searchText.isEmpty {
@@ -71,9 +73,31 @@ struct TodoListView: View {
                     .foregroundStyle(.gray)
             }
         }
+        .contextMenu {
+            
+            NavigationLink(destination: TaskDetailsView(task: task, viewState: viewState)) {
+                Label("Редактировать", systemImage: "square.and.pencil")
+            }
+                
+            Button(action: {
+                shareItems = [task.label, task.caption]
+                isShareSheetPresented = true
+            }) {
+                Label("Поделиться", systemImage: "square.and.arrow.up")
+            }
+            
+            Button(role: .destructive, action: {
+                viewState.deleteTask(by: task.id)
+            }) {
+                Label("Удалить", systemImage: "trash")
+            }
+        }
+        .sheet(isPresented: $isShareSheetPresented) {
+             ShareSheet(items: shareItems)
+         }
     }
     
-    var addBar: some View {
+    var addBarView: some View {
         ZStack(alignment: .trailing) {
             HStack {
                 Spacer()
@@ -99,10 +123,14 @@ struct TodoListView: View {
         NavigationStack {
             VStack(alignment: .center) {
                 if viewState.isLoading {
+                    Spacer()
                     ProgressView("Загрузка задач...")
+                    Spacer()
                 } else if let errorMessage = viewState.errorMessage {
+                    Spacer()
                     Text(errorMessage)
                         .foregroundColor(.red)
+                    Spacer()
                 } else {
                     List(filteredTasks) { task in
                         NavigationLink(destination: TaskDetailsView(task: task, viewState: viewState)) {
@@ -119,7 +147,8 @@ struct TodoListView: View {
                     }
                     .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
                 }
-                addBar
+                
+                addBarView
             }
             .navigationTitle("Задачи")
             .onAppear {

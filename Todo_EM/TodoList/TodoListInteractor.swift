@@ -11,7 +11,7 @@ import CoreData
 
 class TodoListInteractor: TodoListInteractorProtocol {
     
-    private var context = PersistenceController.shared.context
+    var context = PersistenceController.shared.context
     
     func updateTask(task: TaskModel, completion: @escaping (Result<Void, Error>) -> Void) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
@@ -60,21 +60,72 @@ class TodoListInteractor: TodoListInteractorProtocol {
         }
     }
     
+//    func saveTask(task: TaskModel) {
+//        DispatchQueue.global(qos: .background).async {
+//            let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
+//            backgroundContext.perform {
+//                let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+//                fetchRequest.predicate = NSPredicate(format: "id == %@", task.id as CVarArg)
+//                
+//                do {
+//                    let existingTasks = try backgroundContext.fetch(fetchRequest)
+//                    if !existingTasks.isEmpty {
+//                        DispatchQueue.main.async {
+//                            print("Task with id \(task.id) already exists. Skipping save.")
+//                        }
+//                        return
+//                    }
+//                    
+//                    let taskEntity = Task(context: backgroundContext)
+//                    taskEntity.label = task.label
+//                    taskEntity.caption = task.caption
+//                    taskEntity.createDate = task.createDate
+//                    taskEntity.isDone = task.isDone
+//                    taskEntity.id = task.id
+//                    
+//                    try backgroundContext.save()
+//                   
+//                } catch {
+//                    DispatchQueue.main.async {
+//                        print("Ошибка при сохранении задачи в Core Data: \(error.localizedDescription)")
+//                    }
+//                }
+//            }
+//        }
+//    }
+    
     func saveTask(task: TaskModel) {
         DispatchQueue.global(qos: .background).async {
             let backgroundContext = PersistenceController.shared.container.newBackgroundContext()
             backgroundContext.perform {
-                let taskEntity = Task(context: backgroundContext)
-                taskEntity.label = task.label
-                taskEntity.caption = task.caption
-                taskEntity.createDate = task.createDate
-                taskEntity.isDone = task.isDone
-                taskEntity.id = task.id
+                let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "id == %@", task.id as CVarArg)
                 
                 do {
+                    let existingTasks = try backgroundContext.fetch(fetchRequest)
+                    if !existingTasks.isEmpty {
+                        DispatchQueue.main.async {
+                            print("Task with id \(task.id) already exists. Skipping save.")
+                        }
+                        return
+                    }
+                    
+                    let taskEntity = Task(context: backgroundContext)
+                    taskEntity.label = task.label
+                    taskEntity.caption = task.caption
+                    taskEntity.createDate = task.createDate
+                    taskEntity.isDone = task.isDone
+                    taskEntity.id = task.id
+                    
                     try backgroundContext.save()
+                    
+                    // Синхронизируем изменения в основной контекст
                     DispatchQueue.main.async {
-                        print("Задача успешно сохранена в Core Data")
+                        do {
+                            try self.context.save()
+                        } catch {
+                            print("Ошибка при сохранении в основном контексте: \(error.localizedDescription)")
+                        }
                     }
                 } catch {
                     DispatchQueue.main.async {

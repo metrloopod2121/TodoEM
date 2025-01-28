@@ -8,7 +8,7 @@
 import Foundation
 
 class TodoListPresenter: TodoListPresenterProtocol {
-
+    
     weak var viewState: TodoListViewStateProtocol?
     var interactor: TodoListInteractorProtocol
     
@@ -58,9 +58,5 @@ class TodoListPresenter: TodoListPresenterProtocol {
             }
             
         }
-    }
-    
-    func saveTasks() {
-        print()
     }
 }

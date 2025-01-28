@@ -14,7 +14,7 @@ class TodoListConfigurator: TodoListConfiguratorProtocol {
         let viewState = TodoListViewState()
         let presenter = TodoListPresenter(viewState: viewState, interactor: interactor)
         viewState.setUp(with: presenter)
-        let view = TodoListView(viewState: viewState) // Передаем viewState через инициализатор
+        let view = TodoListView(viewState: viewState)
         return view
     }
 }

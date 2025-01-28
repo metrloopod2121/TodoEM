@@ -15,20 +15,37 @@ struct TaskModel: Decodable, Identifiable {
     var createDate: Date = Date()
 
     enum CodingKeys: String, CodingKey {
+        case id = "userId"
         case label = "todo"
         case isDone = "completed"
         case caption = "id"
     }
     
-    init(id: UUID = UUID(), label: String, caption: String = "Caption for task...", isDone: Bool, createDate: Date = Date()) {
+    init(id: UUID = UUID(), label: String, caption: String = "Caption for task...", isDone: Bool = false, createDate: Date = Date()) {
         self.id = id
         self.label = label
         self.caption = caption
         self.isDone = isDone
         self.createDate = createDate
     }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        let userId = try container.decode(Int.self, forKey: .id)
+        self.id = UUID(uuidString: "\(userId)") ?? UUID()
+        self.label = try container.decode(String.self, forKey: .label)
+        
+        self.caption = "Caption"
+        self.isDone = try container.decode(Bool.self, forKey: .isDone)
+        self.createDate = Date()
+    }
+    
 }
 
 struct TasksAPIResponse: Decodable {
     let todos: [TaskModel]
+//    let total: Int
+//    let skip: Int
+//    let limit: Int
 }

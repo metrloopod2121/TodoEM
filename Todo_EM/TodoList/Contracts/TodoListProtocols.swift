@@ -10,12 +10,12 @@ import SwiftUI
 
 
 protocol TodoListViewStateProtocol: AnyObject {
-    var tasks: [TaskModel] { get set }
-    var errorMessage: String? { get set }
     func setUp(with presenter: TodoListPresenterProtocol)
     func fetchTasks()
+    func addTask(task: TaskModel)
     func updateTasks(_ tasks: [TaskModel])
     func updateError(_ error: String)
+    func deleteTask(by id: UUID)
     func updateTask(task: TaskModel)
 }
 
@@ -24,18 +24,17 @@ protocol TodoListPresenterProtocol: AnyObject {
     func loadTasks()
     func updateTask(task: TaskModel)
     func addTask(task: TaskModel)
-    func saveTasks()
     func deleteTask(by id: UUID)
-    
 }
 
 protocol TodoListInteractorProtocol: AnyObject {
-    func fetchTasksFromAPI(completion: @escaping (Result<[TaskModel], Error>) -> Void)
-    func fetchTask(completion: @escaping (Result<[TaskModel], Error>) -> Void)
-    func saveTask(task: TaskModel)
-    func saveToCoreData(_ tasks: [TaskModel])
-    func deleteTask(by id: UUID, completion: @escaping (Result<Void, Error>) -> Void)
     func updateTask(task: TaskModel, completion: @escaping (Result<Void, Error>) -> Void)
+    func saveToCoreData(_ tasks: [TaskModel])
+    func saveTask(task: TaskModel)
+    func deleteTask(by id: UUID, completion: @escaping (Result<Void, Error>) -> Void)
+    func fetchTask(completion: @escaping (Result<[TaskModel], Error>) -> Void)
+    func fetchTaskFromCoreData(completion: @escaping (Result<[TaskModel], Error>) -> Void)
+    func fetchTasksFromAPI(completion: @escaping (Result<[TaskModel], Error>) -> Void)
 }
 
 protocol TodoListConfiguratorProtocol {
